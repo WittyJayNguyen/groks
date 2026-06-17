@@ -4,6 +4,8 @@ Groks là SPA admin + FastAPI backend cho quản lý Grok credential pool thuầ
 
 Không có VNC/profile/browser automation trong model hoặc luồng job. Worker chọn pool đang rảnh nhất và tự đảo pool khi pool hiện tại đã đủ `max_concurrent_jobs`.
 
+Project quản lý phase/REQ/task: https://github.com/users/WittyJayNguyen/projects/1
+
 ## Các Dịch Vụ
 
 ```text
@@ -58,6 +60,7 @@ curl -X POST http://localhost:18081/api/client/generate \
 - [Kiến trúc](docs/ARCHITECTURE.md)
 - [Vận hành](docs/OPERATIONS.md)
 - [Auth Core](docs/AUTH_CORE.md)
+- [Quản lý project trên GitHub](docs/PROJECT_MANAGEMENT.md)
 - [Quy trình Gitflow prod/staging/dev](docs/GIT_WORKFLOW.md)
 - [Quy tắc Commit có issue id](docs/COMMIT_CONVENTION.md)
 - [Quy tắc frontend](frontend/README.md)

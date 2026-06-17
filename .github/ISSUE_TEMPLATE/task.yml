@@ -1,0 +1,53 @@
+name: TASK - Công việc triển khai
+description: Tạo task dev/design/test có phạm vi rõ.
+title: "task(scope): mô tả ngắn"
+labels:
+  - type:task
+  - status:backlog
+body:
+  - type: input
+    id: parent_req
+    attributes:
+      label: REQ liên quan
+      placeholder: "#123"
+    validations:
+      required: true
+  - type: dropdown
+    id: workstream
+    attributes:
+      label: Nhóm việc
+      options:
+        - BA
+        - BM
+        - UI/UX
+        - BE
+        - FE
+        - QA
+        - DevOps
+    validations:
+      required: true
+  - type: input
+    id: branch
+    attributes:
+      label: Branch dự kiến
+      placeholder: "feat/pool-create-modal"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Phạm vi công việc
+      placeholder: |
+        - [ ] Tạo service
+        - [ ] Tạo UI
+        - [ ] Thêm test
+    validations:
+      required: true
+  - type: textarea
+    id: test_plan
+    attributes:
+      label: Cách test
+      placeholder: |
+        - [ ] docker compose config --quiet
+        - [ ] npm run build
+        - [ ] kiểm tra màn hình...

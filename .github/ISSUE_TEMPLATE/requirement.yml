@@ -1,0 +1,70 @@
+name: REQ - Yêu cầu nghiệp vụ
+description: Tạo yêu cầu BA/BM trước khi thiết kế hoặc code.
+title: "req(scope): mô tả ngắn"
+labels:
+  - type:req
+  - status:backlog
+body:
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - "P0 - Discovery"
+        - "P1 - Planning"
+        - "P2 - UI/UX"
+        - "P3 - Backend"
+        - "P4 - Frontend"
+        - "P5 - QA/UAT"
+        - "P6 - Release"
+    validations:
+      required: true
+  - type: dropdown
+    id: owner_role
+    attributes:
+      label: Vai trò phụ trách chính
+      options:
+        - BA
+        - BM
+        - UI/UX
+        - BE
+        - FE
+        - QA
+        - DevOps
+    validations:
+      required: true
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      placeholder: "auth, pool, jobs, api-keys, logs..."
+    validations:
+      required: true
+  - type: textarea
+    id: business_goal
+    attributes:
+      label: Mục tiêu nghiệp vụ
+      description: Vì sao yêu cầu này cần làm?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Điều kiện để xem là hoàn thành.
+      placeholder: |
+        - [ ] Người dùng có thể...
+        - [ ] Hệ thống phải...
+        - [ ] Log/API/UI hiển thị...
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Phụ thuộc / ràng buộc
+      placeholder: "API, thiết kế, credential, dữ liệu mẫu..."
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimate
+      placeholder: "1d, 2d, 3 story points..."
