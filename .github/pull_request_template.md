@@ -5,11 +5,14 @@
 ## Issue
 
 - Closes #
+- Refs #
 
 ## Nhánh
 
 - Source:
 - Target:
+- Phase:
+- Role:
 
 ## Loại thay đổi
 

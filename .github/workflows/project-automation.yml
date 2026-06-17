@@ -1,0 +1,247 @@
+name: Project Automation
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - reopened
+      - closed
+      - labeled
+      - unlabeled
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+      - ready_for_review
+      - closed
+  push:
+    branches:
+      - prod
+      - staging
+      - dev
+      - "feat/**"
+      - "fix/**"
+      - "hotfix/**"
+      - "chore/**"
+      - "refactor/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  sync-project-state:
+    name: Sync project state
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update issue status and progress
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const statusLabels = [
+              "status:backlog",
+              "status:ready",
+              "status:in-progress",
+              "status:review",
+              "status:blocked",
+              "status:done",
+            ];
+            const progressLabels = [
+              "progress:0",
+              "progress:25",
+              "progress:50",
+              "progress:75",
+              "progress:100",
+            ];
+
+            const issueRefPattern = /#(\d+)/g;
+            const closingRefPattern = /\b(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+#(\d+)/gi;
+
+            function unique(values) {
+              return [...new Set(values.filter(Boolean))];
+            }
+
+            function refsFromText(text) {
+              const refs = [];
+              for (const match of String(text || "").matchAll(issueRefPattern)) {
+                refs.push(Number(match[1]));
+              }
+              return unique(refs);
+            }
+
+            function closingRefsFromText(text) {
+              const refs = [];
+              for (const match of String(text || "").matchAll(closingRefPattern)) {
+                refs.push(Number(match[2]));
+              }
+              return unique(refs);
+            }
+
+            function checklistProgress(body) {
+              const matches = [...String(body || "").matchAll(/^\s*[-*]\s+\[( |x|X)\]\s+/gm)];
+              if (matches.length === 0) {
+                return { total: 0, done: 0, percent: 0 };
+              }
+              const done = matches.filter((match) => match[1].toLowerCase() === "x").length;
+              return {
+                total: matches.length,
+                done,
+                percent: Math.round((done / matches.length) * 100),
+              };
+            }
+
+            function progressBucket(percent) {
+              if (percent >= 100) return "progress:100";
+              if (percent >= 75) return "progress:75";
+              if (percent >= 50) return "progress:50";
+              if (percent >= 25) return "progress:25";
+              return "progress:0";
+            }
+
+            async function getIssue(issue_number) {
+              const { data } = await github.rest.issues.get({
+                owner,
+                repo,
+                issue_number,
+              });
+              return data;
+            }
+
+            async function replaceLabels(issue_number, candidates, nextLabel) {
+              const issue = await getIssue(issue_number);
+              const current = issue.labels.map((label) => label.name);
+              for (const label of candidates) {
+                if (label !== nextLabel && current.includes(label)) {
+                  await github.rest.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number,
+                    name: label,
+                  }).catch(() => {});
+                }
+              }
+              if (nextLabel && !current.includes(nextLabel)) {
+                await github.rest.issues.addLabels({
+                  owner,
+                  repo,
+                  issue_number,
+                  labels: [nextLabel],
+                });
+              }
+            }
+
+            async function syncIssue(issue_number, reason = "issue") {
+              const issue = await getIssue(issue_number);
+              const labels = issue.labels.map((label) => label.name);
+              const progress = checklistProgress(issue.body);
+
+              let nextStatus = "status:backlog";
+              if (issue.state === "closed") {
+                nextStatus = "status:done";
+              } else if (labels.includes("status:done")) {
+                nextStatus = "status:done";
+              } else if (labels.includes("status:blocked")) {
+                nextStatus = "status:blocked";
+              } else if (labels.includes("status:review")) {
+                nextStatus = "status:review";
+              } else if (progress.total > 0 && progress.percent === 100) {
+                nextStatus = "status:review";
+              } else if (progress.total > 0 && progress.percent > 0) {
+                nextStatus = "status:in-progress";
+              } else if (labels.includes("status:ready")) {
+                nextStatus = "status:ready";
+              }
+
+              await replaceLabels(issue_number, statusLabels, nextStatus);
+              await replaceLabels(issue_number, progressLabels, progressBucket(progress.percent));
+
+              core.info(`#${issue_number}: ${reason}, ${nextStatus}, ${progress.done}/${progress.total} (${progress.percent}%)`);
+            }
+
+            async function markIssue(issue_number, status, reason) {
+              const issue = await getIssue(issue_number);
+              if (issue.state !== "closed") {
+                await replaceLabels(issue_number, statusLabels, status);
+              }
+              await syncIssue(issue_number, reason);
+            }
+
+            if (context.eventName === "issues") {
+              await syncIssue(context.payload.issue.number, context.payload.action);
+              return;
+            }
+
+            if (context.eventName === "pull_request") {
+              const pr = context.payload.pull_request;
+              const text = `${pr.title}\n${pr.body || ""}`;
+              let refs = refsFromText(text);
+
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                owner,
+                repo,
+                pull_number: pr.number,
+                per_page: 100,
+              });
+              refs = unique([
+                ...refs,
+                ...commits.flatMap((commit) => refsFromText(commit.commit.message)),
+              ]);
+
+              const closingRefs = closingRefsFromText(text);
+              const status = pr.merged ? "status:done" : "status:review";
+              for (const issueNumber of refs) {
+                await markIssue(issueNumber, status, `pull_request #${pr.number}`);
+              }
+
+              if (pr.merged) {
+                for (const issueNumber of closingRefs) {
+                  await github.rest.issues.update({
+                    owner,
+                    repo,
+                    issue_number: issueNumber,
+                    state: "closed",
+                  }).catch(() => {});
+                  await syncIssue(issueNumber, `merged pull_request #${pr.number}`);
+                }
+              }
+              return;
+            }
+
+            if (context.eventName === "push") {
+              const ref = context.ref.replace("refs/heads/", "");
+              const refs = unique(
+                (context.payload.commits || []).flatMap((commit) =>
+                  refsFromText(`${commit.message}\n${commit.id}`)
+                )
+              );
+
+              let status = "status:in-progress";
+              if (ref === "prod") status = "status:done";
+              if (ref === "staging") status = "status:review";
+              if (ref === "dev") status = "status:review";
+
+              for (const issueNumber of refs) {
+                await markIssue(issueNumber, status, `push ${ref}`);
+              }
+              return;
+            }
+
+            if (context.eventName === "workflow_dispatch") {
+              const issues = await github.paginate(github.rest.issues.listForRepo, {
+                owner,
+                repo,
+                state: "open",
+                per_page: 100,
+              });
+              for (const issue of issues.filter((item) => !item.pull_request)) {
+                await syncIssue(issue.number, "manual sync");
+              }
+            }

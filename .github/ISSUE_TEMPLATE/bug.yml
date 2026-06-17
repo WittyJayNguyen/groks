@@ -1,0 +1,55 @@
+name: BUG - Lỗi cần sửa
+description: Báo lỗi có bước tái hiện và mức độ ảnh hưởng.
+title: "bug(scope): mô tả ngắn"
+labels:
+  - type:bug
+  - status:triage
+body:
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - S1 - Production down
+        - S2 - Chức năng chính lỗi
+        - S3 - Lỗi phụ
+        - S4 - Nhỏ / cosmetic
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Môi trường
+      options:
+        - prod
+        - staging
+        - dev
+        - local
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Bước tái hiện
+      placeholder: |
+        1. Vào...
+        2. Click...
+        3. Thấy lỗi...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kết quả mong muốn
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Kết quả thực tế
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log / ảnh / dữ liệu liên quan
