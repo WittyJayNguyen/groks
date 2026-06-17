@@ -69,10 +69,113 @@ status:review
 status:blocked
 status:done
 
+progress:0
+progress:25
+progress:50
+progress:75
+progress:100
+
 priority:p0
 priority:p1
 priority:p2
 priority:p3
+```
+
+## Cấu Trúc Cha Con Theo Phase
+
+Mỗi phase nên có một issue cha và nhiều sub-task theo role.
+
+Ví dụ:
+
+```text
+REQ cha:  req(project): P0 BM/BA xác định scope MVP Groks
+Sub-task: task(bm): P0 xác định mục tiêu kinh doanh
+Sub-task: task(ba): P0 viết scope MVP và rủi ro
+Sub-task: task(ba): P0 xác nhận acceptance criteria tổng
+```
+
+Trong issue cha, dùng checklist để link sub-task:
+
+```text
+- [ ] #10 task(bm): P0 xác định mục tiêu kinh doanh
+- [ ] #11 task(ba): P0 viết scope MVP và rủi ro
+- [ ] #12 task(ba): P0 xác nhận acceptance criteria tổng
+```
+
+Khi sub-task xong, tick checkbox trong issue cha. Workflow `Project Automation` sẽ đọc checklist và tự cập nhật `progress:*`.
+
+Các sub-task phase đã tạo trên GitHub:
+
+```text
+#1  P0 parent: BM/BA xác định scope MVP Groks
+#10 P0 sub: BM xác định mục tiêu kinh doanh MVP
+#11 P0 sub: BA viết scope MVP và rủi ro
+
+#8  P1 parent: BA tách REQ thành task và acceptance criteria
+#12 P1 sub: BA tạo backlog REQ và task con
+#13 P1 sub: BA lập timeline sprint MVP
+
+#3  P2 parent: UI/UX thiết kế flow admin dashboard
+#14 P2 sub: UI/UX chuẩn hóa layout admin
+#15 P2 sub: UI/UX thiết kế flow pool và job
+
+#4  P3 parent: Backend chuẩn hóa API modules và auth core
+#16 P3 sub: BE kiểm tra API contract theo module
+#17 P3 sub: BE thêm service test và error contract
+
+#5  P4 parent: Frontend chuẩn hóa SPA modules theo feature
+#18 P4 sub: FE đồng bộ feature module structure
+#19 P4 sub: FE tự động map UI state theo API
+
+#6  P5 parent: QA tạo test checklist cho pool và job
+#20 P5 sub: QA viết checklist regression MVP
+#21 P5 sub: QA tạo bug triage rule
+
+#7  P6 parent: Release chuẩn bị release MVP Groks
+#22 P6 sub: DevOps release dev sang staging
+#23 P6 sub: DevOps release staging sang prod
+```
+
+## Automation Tự Cập Nhật
+
+Repo có workflow `.github/workflows/project-automation.yml`.
+
+Workflow này tự chạy khi:
+
+```text
+issue được tạo/sửa/đóng/mở lại
+pull request được tạo/sửa/merge
+push lên dev/staging/prod hoặc feat/fix/hotfix/chore/refactor
+chạy thủ công bằng workflow_dispatch
+```
+
+Workflow tự xử lý:
+
+```text
+Issue có checklist 0%       -> progress:0
+Checklist đạt 25/50/75/100  -> progress tương ứng
+Issue có checklist đang làm -> status:in-progress
+Checklist 100%              -> status:review
+Issue closed                -> status:done
+PR mở có #id                -> issue sang status:review
+PR merge có Closes #id      -> issue đóng và status:done
+Commit/push có #id          -> issue tự cập nhật theo nhánh
+```
+
+Quy tắc theo nhánh:
+
+```text
+push feat/*, fix/*, hotfix/*, chore/*, refactor/* -> status:in-progress
+push dev                                      -> status:review
+push staging                                  -> status:review
+push prod                                     -> status:done
+```
+
+Vì vậy commit phải có issue id:
+
+```text
+feat(pool): thêm modal tạo credential #25
+fix(jobs): sửa lỗi đảo pool khi quá tải #31
 ```
 
 ## Quy Trình Tạo Việc
