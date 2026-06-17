@@ -10,6 +10,26 @@ Tài liệu này mô tả cách quản lý phase, REQ, issue id, branch, commit 
 - PR phải link issue bằng `Closes #123`, `Fixes #123` hoặc `Refs #123`.
 - Không làm trực tiếp trên `prod`, `staging`, `dev`; luôn tạo nhánh riêng rồi mở PR.
 
+## GitHub Project
+
+Board chính:
+
+```text
+https://github.com/users/WittyJayNguyen/projects/2
+```
+
+Các issue seed đã tạo:
+
+```text
+#1 req(project): P0 BM/BA xác định scope MVP Groks
+#3 task(ui-ux): P2 thiết kế flow admin dashboard
+#4 task(backend): P3 chuẩn hóa API modules và auth core
+#5 task(frontend): P4 chuẩn hóa SPA modules theo feature
+#6 task(qa): P5 tạo test checklist cho pool và job
+#7 release(prod): P6 chuẩn bị release MVP Groks
+#8 req(ba): P1 tách REQ thành task và acceptance criteria
+```
+
 ## Phase Chuẩn
 
 ```text
