@@ -10,6 +10,29 @@ Tài liệu này mô tả cách quản lý phase, REQ, issue id, branch, commit 
 - PR phải link issue bằng `Closes #123`, `Fixes #123` hoặc `Refs #123`.
 - Không làm trực tiếp trên `prod`, `staging`, `dev`; luôn tạo nhánh riêng rồi mở PR.
 
+## Project Chính
+
+Project đang dùng để theo dõi phase, REQ, task, bug và release:
+
+```text
+Project2026: https://github.com/users/WittyJayNguyen/projects/1
+```
+
+Board này đã có các field chính:
+
+```text
+Status
+Priority
+Linked pull requests
+Parent issue
+Sub-issues progress
+Size
+Estimate
+Start date
+Target date
+Iteration
+```
+
 ## Phase Chuẩn
 
 ```text
