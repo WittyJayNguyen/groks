@@ -1,0 +1,26 @@
+name: Issue Link
+
+on:
+  pull_request:
+    branches:
+      - prod
+      - staging
+      - dev
+
+jobs:
+  validate-issue-link:
+    name: Validate linked issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR body links issue
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          pattern='(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved|refs|references) #[A-Za-z0-9._-]+'
+          if [[ ! "$PR_BODY" =~ $pattern ]]; then
+            echo "PR body must link an issue id."
+            echo "Examples:"
+            echo "  Closes #123"
+            echo "  Refs #GROKS-12"
+            exit 1
+          fi

@@ -1,0 +1,41 @@
+name: RELEASE - Đẩy staging/prod
+description: Checklist release từ dev lên staging hoặc staging lên prod.
+title: "release(version): mô tả ngắn"
+labels:
+  - type:release
+  - status:ready
+body:
+  - type: dropdown
+    id: target
+    attributes:
+      label: Target
+      options:
+        - dev -> staging
+        - staging -> prod
+        - hotfix -> prod
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / tag
+      placeholder: "v1.0.0"
+  - type: textarea
+    id: included
+    attributes:
+      label: Issue/PR included
+      placeholder: |
+        - #123
+        - #124
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      value: |
+        - [ ] CI pass
+        - [ ] QA pass trên staging
+        - [ ] Migration/env đã kiểm tra
+        - [ ] Rollback plan đã có
+        - [ ] Log sau deploy đã kiểm tra

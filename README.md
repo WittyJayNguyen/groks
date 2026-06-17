@@ -58,6 +58,7 @@ curl -X POST http://localhost:18081/api/client/generate \
 - [Kiến trúc](docs/ARCHITECTURE.md)
 - [Vận hành](docs/OPERATIONS.md)
 - [Auth Core](docs/AUTH_CORE.md)
+- [Quản lý project trên GitHub](docs/PROJECT_MANAGEMENT.md)
 - [Quy trình Gitflow prod/staging/dev](docs/GIT_WORKFLOW.md)
 - [Quy tắc Commit có issue id](docs/COMMIT_CONVENTION.md)
 - [Quy tắc frontend](frontend/README.md)
