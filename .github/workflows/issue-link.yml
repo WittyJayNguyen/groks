@@ -16,8 +16,9 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          body=$(printf "%s" "$PR_BODY" | tr '[:upper:]' '[:lower:]')
           pattern='(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved|refs|references) #[A-Za-z0-9._-]+'
-          if [[ ! "$PR_BODY" =~ $pattern ]]; then
+          if [[ ! "$body" =~ $pattern ]]; then
             echo "PR body must link an issue id."
             echo "Examples:"
             echo "  Closes #123"
