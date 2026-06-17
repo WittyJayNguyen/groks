@@ -1,42 +1,56 @@
 # Quy Tắc Commit
 
-Dự án dùng Conventional Commits để lịch sử git dễ đọc và tự động hóa CI/CD về sau.
+Dự án Groks dùng Conventional Commits để lịch sử Git dễ đọc, dễ review và dễ tự động hóa CI/CD.
 
-## Format
+## Format Chuẩn
 
 ```text
-<type>(<scope>): <message>
+<type>(<scope>): <description> #<issue_id>
+
+[body nếu cần]
+
+[footer nếu cần]
+```
+
+Trong đó:
+
+```text
+type         bắt buộc, mô tả loại thay đổi
+scope        nên có, mô tả module bị ảnh hưởng
+description  bắt buộc, mô tả ngắn gọn mục đích commit
+issue_id     phần lớn commit phải có, ví dụ #123 hoặc #GROKS-123
 ```
 
 Ví dụ:
 
 ```text
-feat(pool): add credential pool create modal
-fix(auth): clear invalid token on 401
-docs(frontend): add feature module guide
-refactor(core): split auth and http core
-ci(github): add branch workflow
+feat(pool): thêm modal tạo credential #123
+fix(auth): sửa lỗi token hết hạn #456
+docs(frontend): cập nhật hướng dẫn tạo module #789
+refactor(core): tách auth session khỏi http client #GROKS-12
+vendor(docker): cập nhật phiên bản Redis #321
 ```
 
 ## Type Hợp Lệ
 
 ```text
-feat      thêm chức năng
-fix       sửa lỗi
-docs      sửa tài liệu
-style     sửa format, không đổi logic
-refactor  refactor code, không đổi hành vi
-perf      tối ưu hiệu năng
-test      thêm/sửa test
-build     thay đổi build/dependency
+feat      thêm chức năng mới
+fix       sửa bug, vá lỗi trong codebase
+refactor  sửa code nhưng không thêm feature và không đổi hành vi mong muốn
+docs      thêm hoặc sửa tài liệu
+chore     thay đổi nhỏ không liên quan trực tiếp tới logic sản phẩm
+style     thay đổi format, CSS/UI, không đổi logic xử lý
+perf      cải thiện hiệu năng
+vendor    cập nhật dependency, package, image hoặc phiên bản thư viện
+test      thêm hoặc sửa test
+build     thay đổi build system
 ci        thay đổi CI/CD
-chore     việc phụ trợ
-revert    revert commit
+revert    revert commit trước đó
 ```
 
-## Scope
+## Scope Gợi Ý
 
-Scope nên là module bị ảnh hưởng:
+Scope nên là module hoặc vùng code bị ảnh hưởng:
 
 ```text
 auth
@@ -53,22 +67,22 @@ github
 docs
 ```
 
-## Message
+## Description
 
-Quy tắc message:
+Quy tắc viết description:
 
-- Viết ngắn gọn, rõ hành động.
-- Dùng tiếng Anh ngắn cho commit để dễ tích hợp tool.
-- Không viết hoa chữ đầu nếu không cần.
+- Tối đa khoảng 50 ký tự nếu có thể.
 - Không thêm dấu chấm cuối câu.
-- Một commit nên thể hiện một nhóm thay đổi có liên quan.
+- Viết cùng một ngôn ngữ trong một commit.
+- Mô tả rõ mục đích thay đổi, không viết chung chung.
+- Nghĩ cho người đọc history sau này: nhìn một dòng phải hiểu commit làm gì.
 
 Đúng:
 
 ```text
-feat(jobs): add polling for job status
-fix(pool): validate cookies json before submit
-docs(backend): add module creation guide
+feat(jobs): thêm polling trạng thái job #102
+fix(pool): validate cookies trước khi lưu #103
+docs(backend): thêm hướng dẫn tạo module #104
 ```
 
 Không nên:
@@ -77,8 +91,36 @@ Không nên:
 update code
 fix bug
 done
+hihi
 WIP
+feat(logout): Fix bug ở chỗ đăng xuất
 ```
+
+## Issue Id
+
+Phần lớn commit phải gắn issue id ở cuối subject:
+
+```text
+#123
+#GROKS-123
+#POOL-456
+```
+
+Ví dụ:
+
+```text
+feat(auth): thêm màn hình quên mật khẩu #88
+fix(jobs): sửa lỗi đảo pool khi quá tải #GROKS-91
+```
+
+Các commit có thể không cần issue id:
+
+```text
+docs: sửa lỗi chính tả trong README
+chore: cập nhật ignore file local
+```
+
+Tuy nhiên, nếu thay đổi liên quan tới feature, bug, hotfix hoặc task sprint thì phải có issue id.
 
 ## Commit Khi Nào
 
@@ -86,8 +128,8 @@ Nên commit khi:
 
 - Hoàn thành một feature nhỏ.
 - Sửa xong một bug cụ thể.
-- Thêm docs độc lập.
+- Thêm hoặc sửa docs độc lập.
 - Refactor một vùng code rõ ràng.
+- Cập nhật hạ tầng/CI có phạm vi rõ.
 
-Không nên gom quá nhiều thứ không liên quan vào một commit.
-
+Không nên gom quá nhiều thay đổi không liên quan vào một commit.

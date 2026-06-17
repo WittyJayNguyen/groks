@@ -3,25 +3,25 @@ name: Commit Message
 on:
   pull_request:
     branches:
-      - main
-      - develop
+      - prod
+      - staging
+      - dev
 
 jobs:
   validate-pr-title:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - name: Check Conventional Commit title
+      - name: Check Conventional Commit title with issue id
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._-]+\))?!?: .{1,120}$'
+          pattern='^(feat|fix|refactor|docs|chore|style|perf|vendor|test|build|ci|revert)(\([a-z0-9._-]+\))?!?: .{1,80} #[A-Za-z0-9._-]+$'
           if [[ ! "$PR_TITLE" =~ $pattern ]]; then
-            echo "PR title must follow Conventional Commits."
+            echo "PR title must follow Conventional Commits and include an issue id."
             echo "Examples:"
-            echo "  feat(pool): add pool create modal"
-            echo "  fix(auth): clear invalid token"
-            echo "  docs(frontend): add module guide"
+            echo "  feat(pool): thêm modal tạo credential #123"
+            echo "  fix(auth): sửa lỗi token hết hạn #456"
+            echo "  docs(frontend): cập nhật hướng dẫn module #GROKS-12"
             exit 1
           fi
-

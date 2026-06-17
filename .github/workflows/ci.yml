@@ -3,15 +3,19 @@ name: CI
 on:
   push:
     branches:
-      - main
-      - develop
-      - "feature/**"
-      - "release/**"
+      - prod
+      - staging
+      - dev
+      - "feat/**"
+      - "fix/**"
       - "hotfix/**"
+      - "chore/**"
+      - "refactor/**"
   pull_request:
     branches:
-      - main
-      - develop
+      - prod
+      - staging
+      - dev
 
 jobs:
   backend:
